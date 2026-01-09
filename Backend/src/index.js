@@ -13,6 +13,8 @@ import cors from "cors";
 import giftRoutes from "./routes/giftroutes.js";
 
 const app = express();
+app.use(cors());
+
 app.use(express.json());
 app.use("/api/gifts", giftRoutes);
 app.use("/api/friends", friendroutes);
@@ -22,7 +24,6 @@ app.use("/api/events", eventRoutes);
 
 // Middleware
 app.use("/api/auth", authroutes);
-app.use(cors());
 
 // Basic test route
 app.get('/', (req, res) => res.send('GiftWise backend running 🚀'));

@@ -3,7 +3,16 @@ import Gift from "../models/Gift.js";
 import auth from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
 import { cloudinary } from "../config/cloudinary.js";
+import {
+  pledgeGift,
+  unpledgeGift
+} from "../controllers/giftcontroller.js";
+
 const router = express.Router();
+
+router.post("/:giftId/pledge", auth, pledgeGift);
+router.post("/:giftId/unpledge", auth, unpledgeGift);
+
 /**
  * Create gift
  */
