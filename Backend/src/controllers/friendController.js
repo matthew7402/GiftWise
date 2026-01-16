@@ -78,7 +78,7 @@ export const rejectFriendRequest = async (req, res) => {
     if (!request)
       return res.status(404).json({ message: "Request not found" });
 
-    if (!request.receiver.equals(req.user.id))
+    if (!request.receiver.equals(req.userId))
       return res.status(403).json({ message: "Not authorized" });
 
     request.status = "rejected";

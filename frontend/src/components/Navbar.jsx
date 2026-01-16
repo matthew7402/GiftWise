@@ -8,6 +8,8 @@ export default function Navbar() {
     <nav style={{ padding: "1rem", borderBottom: "1px solid #ccc" }}>
      {/* <Link to="/dashboard" style={{ marginRight: "1rem" }}>Dashboard</Link> */}
       <Link to="/events" style={{ marginRight: "1rem" }}>Events</Link>
+      <Link to="/feed" style={{ marginRight: "1rem" }}>Friends' Events</Link>
+      <Link to="/friends" style={{ marginRight: "1rem" }}>Friends</Link>
 
       {user ? (
         <>

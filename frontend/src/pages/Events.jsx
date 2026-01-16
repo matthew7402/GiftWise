@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
 import { Link } from "react-router-dom";
+import "../App.css";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -51,44 +52,55 @@ export default function Events() {
   };
 
   return (
-    <div>
-      <h2>My Events</h2>
+    <div className="page-container">
+      <h2 className="page-title">My Events</h2>
 
       {/* Create Event Form */}
-      <form onSubmit={handleCreate} style={{ marginBottom: "1rem" }}>
+      <form onSubmit={handleCreate} className="form-container">
         <input
+          className="form-input"
           name="title"
           placeholder="Event title"
           value={form.title}
           onChange={handleChange}
           required
         />
-        <br />
         <textarea
+          className="form-textarea"
           name="description"
           placeholder="Event description"
           value={form.description}
           onChange={handleChange}
         />
-        <br />
         <input
+          className="form-input"
           name="date"
           type="date"
           value={form.date}
           onChange={handleChange}
         />
-        <br />
-        <button type="submit">Create Event</button>
+        <button className="form-button" type="submit">
+          Create Event
+        </button>
       </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
       {/* List of Events */}
-      <ul>
+      <ul className="event-list">
         {events.map((event) => (
-          <li key={event._id}>
-            <Link to={`/events/${event._id}`}>{event.title}</Link>
-            {" "}({new Date(event.date).toLocaleDateString()})
-            <button onClick={() => handleDelete(event._id)}>Delete</button>
+          <li key={event._id} className="event-item">
+            <Link to={`/events/${event._id}`} className="event-link">
+              {event.title}
+            </Link>
+            <span className="event-date">
+              ({new Date(event.date).toLocaleDateString()})
+            </span>
+            <button
+              className="delete-button"
+              onClick={() => handleDelete(event._id)}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>

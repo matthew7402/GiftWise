@@ -1,6 +1,8 @@
 import express from "express";
 import Event from "../models/Event.js";
 import auth from "../middleware/authMiddleware.js";
+import User from "../models/User.js";
+
 
 const router = express.Router();
 
@@ -25,6 +27,20 @@ router.post("/", auth, async (req, res) => {
 router.get("/", auth, async (req, res) => {
   const events = await Event.find({ organizer: req.userId });
   res.json(events);
+});
+router.get("/feed", auth, async (req, res) => {
+  try {
+    // Get user's friends
+    const user = await User.findById(req.userId).select("friends");
+
+    const events = await Event.find({
+      organizer: { $in: user.friends }
+    }).populate("organizer", "name email");
+
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 /**

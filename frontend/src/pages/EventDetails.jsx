@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/axios";
 import { useAuth } from "../auth/AuthContext";
+import "../App.css";
 
 export default function EventDetails() {
   const { id } = useParams();
@@ -9,38 +10,60 @@ export default function EventDetails() {
 
   const [event, setEvent] = useState(null);
   const [gifts, setGifts] = useState([]);
-  const [newGift, setNewGift] = useState({ name: "", description: "", image: null });
+  const [newGift, setNewGift] = useState({
+    name: "",
+    description: "",
+    image: null
+  });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Fetch event + gifts on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Event info
-        const eventRes = await api.get(`/events/${id}`);
-        setEvent(eventRes.data);
+  /* ---------------- Fetch helpers ---------------- */
 
-        // Gifts for this event
-        const giftsRes = await api.get(`/gifts/event/${id}`);
-        setGifts(giftsRes.data);
-      } catch (err) {
-        console.error(err.response?.data || err.message);
-      }
-    };
-    fetchData();
-  }, [id]);
-
-  // Handle input change
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "image") {
-      setNewGift({ ...newGift, image: files[0] });
-    } else {
-      setNewGift({ ...newGift, [name]: value });
-    }
+  const fetchGifts = async () => {
+    const res = await api.get(`/gifts/event/${id}`);
+    setGifts(res.data);
   };
 
-  // Create a new gift
+  const fetchEvent = async () => {
+    const res = await api.get(`/events/${id}`);
+    setEvent(res.data);
+  };
+
+  /* ---------------- Initial load ---------------- */
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await fetchEvent();
+        await fetchGifts();
+      } catch (err) {
+        console.error(err.response?.data || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [id]);
+
+  /* ---------------- Derived state ---------------- */
+
+  const isOrganizer =
+    event?.organizer?._id
+      ? event.organizer._id === user._id
+      : event?.organizer === user._id;
+
+  /* ---------------- Form handling ---------------- */
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setNewGift((prev) => ({
+      ...prev,
+      [name]: name === "image" ? files[0] : value
+    }));
+  };
+
   const handleCreateGift = async (e) => {
     e.preventDefault();
     if (!newGift.name.trim()) return;
@@ -52,11 +75,11 @@ export default function EventDetails() {
       formData.append("event", id);
       if (newGift.image) formData.append("image", newGift.image);
 
-      const res = await api.post("/gifts", formData, {
+      await api.post("/gifts", formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 
-      setGifts([...gifts, res.data]);
+      await fetchGifts();
       setNewGift({ name: "", description: "", image: null });
       setError("");
     } catch (err) {
@@ -64,97 +87,136 @@ export default function EventDetails() {
     }
   };
 
-  // Pledge a gift
+  /* ---------------- Gift actions ---------------- */
+
   const handlePledge = async (giftId) => {
     try {
-      const res = await api.post(`/gifts/${giftId}/pledge`);
-      setGifts(gifts.map(g => g._id === giftId ? res.data : g));
+      await api.post(`/gifts/${giftId}/pledge`);
+      await fetchGifts();
     } catch (err) {
       console.error(err.response?.data || err.message);
     }
   };
 
-  // Unpledge a gift
   const handleUnpledge = async (giftId) => {
     try {
-      const res = await api.post(`/gifts/${giftId}/unpledge`);
-      setGifts(gifts.map(g => g._id === giftId ? res.data : g));
+      await api.post(`/gifts/${giftId}/unpledge`);
+      await fetchGifts();
     } catch (err) {
       console.error(err.response?.data || err.message);
     }
   };
 
-  // Delete gift
   const handleDeleteGift = async (giftId) => {
     try {
       await api.delete(`/gifts/${giftId}`);
-      setGifts(gifts.filter(g => g._id !== giftId));
+      await fetchGifts();
     } catch (err) {
       console.error(err.response?.data || err.message);
     }
   };
 
-  if (!event) return <p>Loading event...</p>;
+  /* ---------------- Render ---------------- */
+
+  if (loading) return <p className="loading">Loading event details...</p>;
+  if (!event) return <p className="error">Event not found</p>;
 
   return (
-    <div>
-      <h2>{event.title}</h2>
-      {event.description && <p>{event.description}</p>}
-      {event.date && <p>Date: {new Date(event.date).toLocaleDateString()}</p>}
-      <p>Organizer ID: {event.organizer}</p>
-      <p>Created at: {new Date(event.createdAt).toLocaleString()}</p>
+    <div className="page-container">
+      <h1 className="page-title">{event.title}</h1>
+      <p className="event-description">{event.description}</p>
+      <p className="event-date">
+        Date: {new Date(event.date).toLocaleDateString()}
+      </p>
 
-      <hr />
+      <h2 className="section-title">Gifts</h2>
+      <ul className="gift-list">
+        {gifts.map((gift) => {
+          const pledgedByMe = gift.pledgedBy === user._id;
 
-      <h3>Gifts</h3>
+          return (
+            <li key={gift._id} className="gift-item">
+              <h3 className="gift-title">{gift.name}</h3>
+              <p className="gift-description">{gift.description}</p>
+              {gift.imageUrl && (
+                <img
+                  src={gift.imageUrl}
+                  alt={gift.name}
+                  className="gift-image"
+                />
+              )}
+              <p>
+                {gift.pledgedBy
+                  ? pledgedByMe
+                    ? "You pledged this"
+                    : "Already pledged"
+                  : "Not pledged yet"}
+              </p>
 
-      {/* Gift Form */}
-      <form onSubmit={handleCreateGift}>
-        <input
-          name="name"
-          placeholder="Gift name"
-          value={newGift.name}
-          onChange={handleChange}
-          required
-        />
-        <br />
-        <textarea
-          name="description"
-          placeholder="Gift description"
-          value={newGift.description}
-          onChange={handleChange}
-        />
-        <br />
-        <input type="file" name="image" accept="image/*" onChange={handleChange} />
-        <br />
-        <button type="submit">Add Gift</button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+              {/* Friend actions */}
+              {!isOrganizer && !gift.pledgedBy && (
+                <button
+                  className="pledge-button"
+                  onClick={() => handlePledge(gift._id)}
+                >
+                  Pledge
+                </button>
+              )}
 
-      {/* Gifts List */}
-      <ul>
-        {gifts.map((gift) => (
-          <li key={gift._id} style={{ marginBottom: "1rem" }}>
-            <strong>{gift.name}</strong>
-            {gift.description && <p>{gift.description}</p>}
-            {gift.imageUrl && <img src={gift.imageUrl} alt={gift.name} width={100} />}
-            <p>
-              {gift.pledgedBy
-                ? gift.pledgedBy === user._id
-                  ? "You pledged this"
-                  : "Already pledged"
-                : "Not pledged yet"}
-            </p>
+              {!isOrganizer && pledgedByMe && (
+                <button
+                  className="unpledge-button"
+                  onClick={() => handleUnpledge(gift._id)}
+                >
+                  Unpledge
+                </button>
+              )}
 
-            {/* Pledge / Unpledge buttons */}
-            {!gift.pledgedBy && <button onClick={() => handlePledge(gift._id)}>Pledge</button>}
-            {gift.pledgedBy === user._id && <button onClick={() => handleUnpledge(gift._id)}>Unpledge</button>}
-
-            {/* Delete button only if you are organizer */}
-            {event.organizer === user._id && <button onClick={() => handleDeleteGift(gift._id)}>Delete</button>}
-          </li>
-        ))}
+              {/* Organizer actions */}
+              {isOrganizer && (
+                <button
+                  className="delete-button"
+                  onClick={() => handleDeleteGift(gift._id)}
+                >
+                  Delete
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
+
+      {/* -------- Gift creation (organizer only) -------- */}
+      {isOrganizer && (
+        <form onSubmit={handleCreateGift} className="form-container">
+          <input
+            className="form-input"
+            name="name"
+            placeholder="Gift name"
+            value={newGift.name}
+            onChange={handleChange}
+            required
+          />
+          <textarea
+            className="form-textarea"
+            name="description"
+            placeholder="Gift description"
+            value={newGift.description}
+            onChange={handleChange}
+          />
+          <input
+            className="form-input"
+            name="image"
+            type="file"
+            onChange={handleChange}
+          />
+          <button className="form-button" type="submit">
+            Add Gift
+          </button>
+        </form>
+      )}
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
     </div>
   );
 }

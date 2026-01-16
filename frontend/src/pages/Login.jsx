@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "../App.css";
 
 export default function Login() {
   const { login } = useAuth();
@@ -22,14 +23,31 @@ export default function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input name="email" placeholder="Email" onChange={handleChange} value={form.email} />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} value={form.password} />
-        <button type="submit">Login</button>
-      </form>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">Login</h2>
+        {error && <p className="auth-error">{error}</p>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <input
+            className="auth-input"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            value={form.email}
+          />
+          <input
+            className="auth-input"
+            name="password"
+            type="password"
+            placeholder="Password"
+            onChange={handleChange}
+            value={form.password}
+          />
+          <button className="auth-button" type="submit">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "../App.css";
 
 export default function Register() {
   const { register } = useAuth();
@@ -22,15 +23,38 @@ export default function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Name" onChange={handleChange} value={form.name} />
-        <input name="email" placeholder="Email" onChange={handleChange} value={form.email} />
-        <input name="password" type="password" placeholder="Password" onChange={handleChange} value={form.password} />
-        <button type="submit">Register</button>
-      </form>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2 className="auth-title">Register</h2>
+        {error && <p className="auth-error">{error}</p>}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <input
+            className="auth-input"
+            name="name"
+            placeholder="Name"
+            onChange={handleChange}
+            value={form.name}
+          />
+          <input
+            className="auth-input"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            value={form.email}
+          />
+          <input
+            className="auth-input"
+            name="password"
+            type="password"
+            placeholder="Password"
+            onChange={handleChange}
+            value={form.password}
+          />
+          <button className="auth-button" type="submit">
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

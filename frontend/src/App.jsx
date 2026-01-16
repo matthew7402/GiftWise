@@ -29,12 +29,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import Login from "./pages/Login";
+import FriendsEvents from "./pages/FriendsEvents.jsx";
+
 import Register from "./pages/Register";
 //import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Navbar from "./components/navbar";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
+import Friends from "./pages/Friends";
+
 
 function App() {
   const { loading } = useAuth();
@@ -53,6 +57,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/feed" element={<FriendsEvents />} />
+          <Route path="/friends" element={<Friends />} />
 
           <Route
             path="/events/:id"
