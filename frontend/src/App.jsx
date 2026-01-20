@@ -34,7 +34,7 @@ import FriendsEvents from "./pages/FriendsEvents.jsx";
 import Register from "./pages/Register";
 //import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import Navbar from "./components/navbar";
+import Navbar from "./components/navigationbar";
 import Events from "./pages/Events";
 import EventDetails from "./pages/EventDetails";
 import Friends from "./pages/Friends";
