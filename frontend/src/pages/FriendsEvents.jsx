@@ -30,33 +30,72 @@ export default function FriendsEvents() {
     return <p className="no-data">No events from friends yet.</p>;
   }
 
+  if (loading) {
   return (
-    <div className="page-container">
-      <h1 className="page-title">Friends' Events</h1>
+    <p className="text-center text-gray-500 py-8">
+      Loading friends' events...
+    </p>
+  );
+}
 
-      <ul className="event-list">
+if (error) {
+  return (
+    <p className="text-center text-red-600 py-8">
+      {error}
+    </p>
+  );
+}
+
+return (
+      <div className="min-h-screen bg-gray-50">
+
+  <div className="max-w-5xl mx-auto px-4 py-6">
+    <h1 className="text-2xl font-bold mb-6">
+      Friends' Events
+    </h1>
+
+    {events.length === 0 ? (
+      <p className="text-gray-500 text-center">
+        No events from friends yet.
+      </p>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {events.map((event) => (
-          <li key={event._id} className="event-item">
-            <h3 className="event-title">{event.title}</h3>
+          <div
+            key={event._id}
+            className="bg-white border rounded-lg p-4 shadow-sm"
+          >
+            <h3 className="text-lg font-semibold">
+              {event.title}
+            </h3>
 
             {event.organizer && (
-              <p className="event-organizer">
-                Organized by: <strong>{event.organizer.name}</strong>
+              <p className="text-sm text-gray-500 mt-1">
+                Organized by{" "}
+                <span className="font-medium text-gray-700">
+                  {event.organizer.name}
+                </span>
               </p>
             )}
 
             {event.date && (
-              <p className="event-date">
-                Date: {new Date(event.date).toLocaleDateString()}
+              <p className="text-sm text-gray-500 mt-1">
+                {new Date(event.date).toLocaleDateString()}
               </p>
             )}
 
-            <Link to={`/events/${event._id}`} className="event-link">
+            <Link
+              to={`/events/${event._id}`}
+              className="inline-block mt-4 bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-500 transition"
+            >
               View Event & Gifts
             </Link>
-          </li>
+          </div>
         ))}
-      </ul>
-    </div>
-  );
+      </div>
+    )}
+  </div>
+  </div>
+);
+
 }

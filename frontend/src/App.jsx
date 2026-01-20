@@ -46,6 +46,7 @@ function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
+        <div className="min-h-screen bg-gray-200">
     <BrowserRouter>
       <Navbar /> {/* Navbar is now visible on all pages */}
       <Routes>
@@ -81,6 +82,7 @@ function App() {
         <Route path="*" element={<Login />} />
       </Routes>
     </BrowserRouter>
+    </div>
   );
 }
 

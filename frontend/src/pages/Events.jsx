@@ -52,58 +52,105 @@ export default function Events() {
   };
 
   return (
-    <div className="page-container">
-      <h2 className="page-title">My Events</h2>
+  <div className="min-h-screen bg-gray-50">
+  <div className="max-w-5xl mx-auto px-4 py-6">
+    <h1 className="text-2xl font-bold mb-6">My Events</h1>
 
-      {/* Create Event Form */}
-      <form onSubmit={handleCreate} className="form-container">
+    {/* Create Event Form */}
+    <form
+      onSubmit={handleCreate}
+      className="bg-white border rounded-lg p-4 mb-8 shadow-sm"
+    >
+      <h2 className="text-lg font-semibold mb-4">
+        Create New Event
+      </h2>
+
+      <div className="space-y-3">
         <input
-          className="form-input"
+          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           name="title"
           placeholder="Event title"
           value={form.title}
           onChange={handleChange}
           required
         />
+
         <textarea
-          className="form-textarea"
+          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           name="description"
           placeholder="Event description"
           value={form.description}
           onChange={handleChange}
         />
+
         <input
-          className="form-input"
+          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           name="date"
           type="date"
           value={form.date}
           onChange={handleChange}
         />
-        <button className="form-button" type="submit">
+
+        <button
+          type="submit"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition"
+        >
           Create Event
         </button>
-      </form>
-      {error && <p className="error-message">{error}</p>}
+      </div>
 
-      {/* List of Events */}
-      <ul className="event-list">
+      {error && (
+        <p className="text-sm text-red-600 mt-3">
+          {error}
+        </p>
+      )}
+    </form>
+
+    {/* Events List */}
+    <h2 className="text-xl font-semibold mb-4">
+      Your Events
+    </h2>
+
+    {events.length === 0 ? (
+      <p className="text-gray-500 text-center">
+        No events yet. Create your first one.
+      </p>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {events.map((event) => (
-          <li key={event._id} className="event-item">
-            <Link to={`/events/${event._id}`} className="event-link">
+          <div
+            key={event._id}
+            className="bg-white border rounded-lg p-4 shadow-sm"
+          >
+            <h3 className="text-lg font-semibold">
               {event.title}
-            </Link>
-            <span className="event-date">
-              ({new Date(event.date).toLocaleDateString()})
-            </span>
-            <button
-              className="delete-button"
-              onClick={() => handleDelete(event._id)}
-            >
-              Delete
-            </button>
-          </li>
+            </h3>
+
+            <p className="text-sm text-gray-500 mt-1">
+              {new Date(event.date).toLocaleDateString()}
+            </p>
+
+            <div className="mt-4 flex gap-2">
+              <Link
+                to={`/events/${event._id}`}
+                className="bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-500 transition"
+              >
+                View
+              </Link>
+
+              <button
+                onClick={() => handleDelete(event._id)}
+                className="text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
-    </div>
-  );
+      </div>
+    )}
+  </div>
+  </div>
+);
+
 }

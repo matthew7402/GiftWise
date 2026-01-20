@@ -49,55 +49,97 @@ export default function Friends() {
     loadRequests();
   };
 
-  return (
-    <div className="page-container">
-      <h1 className="page-title">Friends</h1>
+ return (
+      <div className="min-h-screen bg-gray-50">
 
-      {/* Send invite */}
-      <form onSubmit={sendInvite} className="form-container">
+  <div className="max-w-5xl mx-auto px-4 py-6">
+    <h1 className="text-2xl font-bold mb-6">Friends</h1>
+
+    {/* Send invite */}
+    <form
+      onSubmit={sendInvite}
+      className="bg-white border rounded-lg p-4 mb-8 shadow-sm"
+    >
+      <h2 className="text-lg font-semibold mb-4">
+        Invite a Friend
+      </h2>
+
+      <div className="flex flex-col sm:flex-row gap-3">
         <input
-          className="form-input"
           type="email"
           placeholder="Friend's email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="flex-1 border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
-        <button className="form-button" type="submit">
+
+        <button
+          type="submit"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition"
+        >
           Send Invite
         </button>
-      </form>
+      </div>
 
-      {message && <p className="success-message">{message}</p>}
-      {error && <p className="error-message">{error}</p>}
+      {message && (
+        <p className="text-sm text-green-600 mt-3">
+          {message}
+        </p>
+      )}
 
-      <hr className="divider" />
+      {error && (
+        <p className="text-sm text-red-600 mt-3">
+          {error}
+        </p>
+      )}
+    </form>
 
-      {/* Incoming requests */}
-      <h2 className="section-title">Incoming Requests</h2>
+    {/* Incoming Requests */}
+    <h2 className="text-xl font-semibold mb-4">
+      Incoming Requests
+    </h2>
 
-      {requests.length === 0 && <p className="no-data">No pending requests</p>}
-
-      <ul className="request-list">
+    {requests.length === 0 ? (
+      <p className="text-gray-500 text-center">
+        No pending requests
+      </p>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {requests.map((req) => (
-          <li key={req._id} className="request-item">
-            <strong>{req.sender.name}</strong> ({req.sender.email})
-            <br />
-            <button
-              className="accept-button"
-              onClick={() => acceptRequest(req._id)}
-            >
-              Accept
-            </button>
-            <button
-              className="reject-button"
-              onClick={() => rejectRequest(req._id)}
-            >
-              Reject
-            </button>
-          </li>
+          <div
+            key={req._id}
+            className="bg-white border rounded-lg p-4 shadow-sm"
+          >
+            <p className="font-semibold">
+              {req.sender.name}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              {req.sender.email}
+            </p>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={() => acceptRequest(req._id)}
+                className="bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-500 transition"
+              >
+                Accept
+              </button>
+
+              <button
+                onClick={() => rejectRequest(req._id)}
+                className="border px-3 py-1.5 rounded-md hover:bg-gray-50 transition"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
         ))}
-      </ul>
-    </div>
-  );
+      </div>
+    )}
+  </div>
+  </div>
+);
+
 }
