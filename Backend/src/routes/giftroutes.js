@@ -27,6 +27,7 @@ router.post(
         name: req.body.name,
         price: req.body.price,
         event: req.body.event,
+        description: req.body.description,
         imageUrl: req.file ? req.file.path : null,
         imagePublicId: req.file ? req.file.filename : null
       };
