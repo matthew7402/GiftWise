@@ -3,7 +3,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 //import dotenv from "../dotenv";
 import "../env.js";
 
-console.log("CLOUDINARY FILE LOADED");
+//console.log("CLOUDINARY FILE LOADED");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -18,5 +18,5 @@ const storage = new CloudinaryStorage({
     allowed_formats: ["jpg", "jpeg", "png"],
   },
 });
-console.log("Cloudinary key:", process.env.CLOUDINARY_API_KEY);
+//console.log("Cloudinary key:", process.env.CLOUDINARY_API_KEY);
 export { cloudinary, storage };

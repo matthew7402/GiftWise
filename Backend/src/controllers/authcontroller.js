@@ -41,3 +41,20 @@ export const login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findById(userId).select("-password"); // remove sensitive fields
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user);
+  } catch (err) {
+    console.error("Get current user error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};

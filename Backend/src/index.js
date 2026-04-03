@@ -1,7 +1,7 @@
 // backend/src/index.js
 import "./env.js";
 
-console.log("ENV LOADED IN INDEX");
+//console.log("ENV LOADED IN INDEX");
 
 import authroutes from "./routes/authroutes.js";
 import friendroutes from "./routes/friendroutes.js";

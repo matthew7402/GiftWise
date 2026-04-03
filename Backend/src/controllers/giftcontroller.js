@@ -1,6 +1,8 @@
 import Gift from "../models/Gift.js";
 import Event from "../models/Event.js";
 import User from "../models/User.js";
+import { cloudinary } from "../config/cloudinary.js";
+
 
 export const pledgeGift = async (req, res) => {
   try {
@@ -67,4 +69,93 @@ export const unpledgeGift = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+export const createGift = async (req, res) => {
+  try {
+    const giftData = {
+      name: req.body.name,
+      event: req.body.event,
+      description: req.body.description,
+      imageUrl: req.file ? req.file.path : null,
+      imagePublicId: req.file ? req.file.filename : null
+    };
 
+    const gift = await Gift.create(giftData);
+    res.status(201).json(gift);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
+ * Get gifts for an event
+ */
+export const getGiftsByEvent = async (req, res) => {
+  try {
+    const gifts = await Gift.find({ event: req.params.eventId });
+    res.json(gifts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
+ * Update gift
+ */
+export const updateGift = async (req, res) => {
+  try {
+    const gift = await Gift.findById(req.params.id);
+
+    if (!gift) {
+      return res.status(404).json({ message: "Gift not found" });
+    }
+
+    // ✅ Delete old image if new one uploaded
+    if (req.file && gift.imagePublicId) {
+      await cloudinary.uploader.destroy(gift.imagePublicId);
+    }
+
+    const updates = {
+      name: req.body.name,
+      price: req.body.price
+    };
+
+    if (req.file) {
+      updates.imageUrl = req.file.path;
+      updates.imagePublicId = req.file.filename;
+    }
+
+    const updatedGift = await Gift.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true }
+    );
+
+    res.json(updatedGift);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/**
+ * Delete gift
+ */
+export const deleteGift = async (req, res) => {
+  try {
+    const gift = await Gift.findById(req.params.id);
+
+    if (!gift) {
+      return res.status(404).json({ message: "Gift not found" });
+    }
+
+    // ✅ Delete image from Cloudinary
+    if (gift.imagePublicId) {
+      await cloudinary.uploader.destroy(gift.imagePublicId);
+    }
+
+    await gift.deleteOne();
+
+    res.json({ message: "Gift deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
