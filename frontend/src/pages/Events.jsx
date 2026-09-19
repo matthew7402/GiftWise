@@ -3,154 +3,20 @@ import api from "../api/axios";
 import { Link } from "react-router-dom";
 import "../App.css";
 
+const readableDate = (date) => date ? new Date(date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "Date to be decided";
+
 export default function Events() {
   const [events, setEvents] = useState([]);
   const [form, setForm] = useState({ title: "", description: "", date: "" });
   const [error, setError] = useState("");
+  useEffect(() => { api.get("/events").then((res) => setEvents(res.data)).catch(() => setError("We couldn't load your events. Please try again.")); }, []);
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleCreate = async (e) => { e.preventDefault(); if (!form.title.trim()) return; try { const res = await api.post("/events", form); setEvents([...events, res.data]); setForm({ title: "", description: "", date: "" }); setError(""); } catch (err) { setError(err.response?.data?.message || "We couldn't create this event."); } };
+  const handleDelete = async (id) => { try { await api.delete(`/events/${id}`); setEvents(events.filter((event) => event._id !== id)); } catch { setError("We couldn't delete this event. Please try again."); } };
 
-  // Fetch user's events on mount
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const res = await api.get("/events"); // Only gets events of current user
-        setEvents(res.data);
-      } catch (err) {
-        console.error(err.response?.data || err.message);
-      }
-    };
-    fetchEvents();
-  }, []);
-
-  // Handle input change
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // Create new event
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    if (!form.title.trim()) return;
-
-    try {
-      const res = await api.post("/events", form); // backend sets organizer
-      setEvents([...events, res.data]);
-      setForm({ title: "", description: "", date: "" });
-      setError("");
-    } catch (err) {
-      setError(err.response?.data?.message || "Error creating event");
-    }
-  };
-
-  // Delete an event
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`/events/${id}`);
-      setEvents(events.filter((e) => e._id !== id));
-    } catch (err) {
-      console.error(err.response?.data || err.message);
-    }
-  };
-
-  return (
-  <div className="min-h-screen bg-gray-50">
-  <div className="max-w-5xl mx-auto px-4 py-6">
-    <h1 className="text-2xl font-bold mb-6">My Events</h1>
-
-    {/* Create Event Form */}
-    <form
-      onSubmit={handleCreate}
-      className="bg-white border rounded-lg p-4 mb-8 shadow-sm"
-    >
-      <h2 className="text-lg font-semibold mb-4">
-        Create New Event
-      </h2>
-
-      <div className="space-y-3">
-        <input
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          name="title"
-          placeholder="Event title"
-          value={form.title}
-          onChange={handleChange}
-          required
-        />
-
-        <textarea
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          name="description"
-          placeholder="Event description"
-          value={form.description}
-          onChange={handleChange}
-        />
-
-        <input
-          className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          name="date"
-          type="date"
-          value={form.date}
-          onChange={handleChange}
-        />
-
-        <button
-          type="submit"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-500 transition"
-        >
-          Create Event
-        </button>
-      </div>
-
-      {error && (
-        <p className="text-sm text-red-600 mt-3">
-          {error}
-        </p>
-      )}
-    </form>
-
-    {/* Events List */}
-    <h2 className="text-xl font-semibold mb-4">
-      Your Events
-    </h2>
-
-    {events.length === 0 ? (
-      <p className="text-gray-500 text-center">
-        No events yet. Create your first one.
-      </p>
-    ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {events.map((event) => (
-          <div
-            key={event._id}
-            className="bg-white border rounded-lg p-4 shadow-sm"
-          >
-            <h3 className="text-lg font-semibold">
-              {event.title}
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              {new Date(event.date).toLocaleDateString()}
-            </p>
-
-            <div className="mt-4 flex gap-2">
-              <Link
-                to={`/events/${event._id}`}
-                className="bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-500 transition"
-              >
-                View
-              </Link>
-
-              <button
-                onClick={() => handleDelete(event._id)}
-                className="text-red-600 border border-red-200 px-3 py-1.5 rounded-md hover:bg-red-50 transition"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-  </div>
-);
-
+  return <main className="page-wrap">
+    <header className="page-header"><div><p className="eyebrow">Your planning space</p><h1 className="page-title">My events</h1><p className="page-subtitle">Create a moment worth celebrating, then build the perfect wishlist.</p></div></header>
+    <form onSubmit={handleCreate} className="surface form-card"><h2 className="section-title">Plan something special</h2><p className="section-description">Start with the essentials. You can add gifts from the event page.</p><div className="grid gap-4 md:grid-cols-2"><div><label className="field-label" htmlFor="event-title">Event name</label><input id="event-title" className="field-input" name="title" placeholder="e.g. Sara's birthday" value={form.title} onChange={handleChange} required /></div><div><label className="field-label" htmlFor="event-date">Date</label><input id="event-date" className="field-input" name="date" type="date" value={form.date} onChange={handleChange} /></div><div className="md:col-span-2"><label className="field-label" htmlFor="event-description">A little context <span className="font-normal text-slate-400">(optional)</span></label><textarea id="event-description" className="field-textarea" name="description" placeholder="Tell your friends what you're celebrating..." value={form.description} onChange={handleChange} /></div></div><div className="mt-4"><button type="submit" className="btn btn-primary">Create event <span aria-hidden="true">→</span></button></div>{error && <p className="notice notice-error">{error}</p>}</form>
+    <section><div className="mb-4 flex items-center justify-between"><h2 className="section-title">Your upcoming events</h2><span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-800">{events.length} {events.length === 1 ? "event" : "events"}</span></div>{events.length === 0 ? <div className="empty-state"><div className="empty-icon">✦</div><h3>Your calendar is wide open</h3><p>Create your first event to start building a thoughtful wishlist.</p></div> : <div className="event-grid">{events.map((event) => <article key={event._id} className="surface event-card"><h3 className="card-title">{event.title}</h3>{event.description && <p className="card-copy">{event.description}</p>}<p className="metadata"><span aria-hidden="true">◷</span>{readableDate(event.date)}</p><div className="card-actions"><Link to={`/events/${event._id}`} className="btn btn-primary">Open event</Link><button onClick={() => handleDelete(event._id)} className="btn btn-danger">Delete</button></div></article>)}</div>}</section>
+  </main>;
 }

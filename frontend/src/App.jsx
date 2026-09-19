@@ -46,7 +46,7 @@ function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
-        <div className="min-h-screen bg-gray-200">
+    <div className="app-shell">
     <BrowserRouter>
       <Navbar /> {/* Navbar is now visible on all pages */}
       <Routes>
@@ -58,8 +58,8 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/feed" element={<FriendsEvents />} />
-          <Route path="/friends" element={<Friends />} />
+          <Route path="/feed" element={<ProtectedRoute><FriendsEvents /></ProtectedRoute>} />
+          <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
 
           <Route
             path="/events/:id"
@@ -87,4 +87,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,81 +1,10 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { useNavigate } from "react-router-dom";
+import "../App.css";
 
 export default function Login() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = e => {
-    setError("");
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (!form.email || !form.password) {
-      setError("Email and password are required");
-      return;
-    }
-    setLoading(true);
-    try {
-      await login(form.email, form.password);
-      navigate("/events");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-300 flex flex-col">
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg space-y-6">
-        <h1 className="text-2xl font-bold text-center text-gray-800">Login</h1>
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 disabled:opacity-50 transition"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-500 text-center">
-          Don’t have an account?{" "}
-          <a href="/register" className="text-blue-600 hover:underline">
-            Register
-          </a>
-        </p>
-      </div>
-    </div>
-    </div>
-  );
+  const { login } = useAuth(); const navigate = useNavigate(); const [form, setForm] = useState({ email: "", password: "" }); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
+  const submit = async (e) => { e.preventDefault(); setLoading(true); setError(""); try { await login(form.email, form.password); navigate("/events"); } catch (err) { setError(err.response?.data?.message || "We couldn't log you in. Check your details and try again."); } finally { setLoading(false); } };
+  return <div className="auth-page"><aside className="auth-showcase"><span className="showcase-pill">A more thoughtful way to celebrate</span><div><h2>Every great gift starts with a little thought.</h2><p>Plan celebrations, share ideas, and let friends coordinate the gifts that matter.</p></div><span className="text-sm text-violet-100">✦ GiftWise</span></aside><main className="auth-panel"><div className="surface auth-card"><Link to="/login" className="brand"><span className="brand-mark">✦</span>GiftWise</Link><h1>Welcome back</h1><p>Log in to continue planning memorable moments.</p>{error && <p className="notice notice-error">{error}</p>}<form onSubmit={submit} className="mt-6 space-y-4"><div><label className="field-label" htmlFor="email">Email address</label><input id="email" className="field-input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" required /></div><div><label className="field-label" htmlFor="password">Password</label><input id="password" className="field-input" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Your password" required /></div><button className="btn btn-primary mt-2 w-full" disabled={loading}>{loading ? "Logging in…" : "Log in"}</button></form><p className="auth-footer">New to GiftWise? <Link className="text-link" to="/register">Create an account</Link></p></div></main></div>;
 }

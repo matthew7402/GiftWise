@@ -1,90 +1,10 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
-import { useNavigate } from "react-router-dom";
+import "../App.css";
 
 export default function Register() {
-  const { register } = useAuth();
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = e => {
-    setError("");
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (!form.name || !form.email || !form.password) {
-      setError("All fields are required");
-      return;
-    }
-    setLoading(true);
-    try {
-      await register(form.name, form.email, form.password);
-      navigate("/login");
-    } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg space-y-6">
-        <h1 className="text-2xl font-bold text-center text-gray-800">Register</h1>
-        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Full Name"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 disabled:opacity-50 transition"
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
-
-        <p className="text-sm text-gray-500 text-center">
-          Already have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
-            Login
-          </a>
-        </p>
-      </div>
-    </div>
-    </div>
-  );
+  const { register } = useAuth(); const navigate = useNavigate(); const [form, setForm] = useState({ name: "", email: "", password: "" }); const [error, setError] = useState(""); const [loading, setLoading] = useState(false);
+  const submit = async (e) => { e.preventDefault(); setLoading(true); setError(""); try { await register(form.name, form.email, form.password); navigate("/login"); } catch (err) { setError(err.response?.data?.message || "We couldn't create your account. Please try again."); } finally { setLoading(false); } };
+  return <div className="auth-page"><aside className="auth-showcase"><span className="showcase-pill">Your celebrations, beautifully organised</span><div><h2>Make every occasion feel personal.</h2><p>Keep gift ideas in one place and make it simple for friends to celebrate with you.</p></div><span className="text-sm text-violet-100">✦ GiftWise</span></aside><main className="auth-panel"><div className="surface auth-card"><Link to="/login" className="brand"><span className="brand-mark">✦</span>GiftWise</Link><h1>Create your account</h1><p>Start planning celebrations with your favourite people.</p>{error && <p className="notice notice-error">{error}</p>}<form onSubmit={submit} className="mt-6 space-y-4"><div><label className="field-label" htmlFor="name">Your name</label><input id="name" className="field-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Alex Morgan" required /></div><div><label className="field-label" htmlFor="email">Email address</label><input id="email" className="field-input" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" required /></div><div><label className="field-label" htmlFor="password">Password</label><input id="password" className="field-input" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Create a password" required /></div><button className="btn btn-primary mt-2 w-full" disabled={loading}>{loading ? "Creating account…" : "Create account"}</button></form><p className="auth-footer">Already have an account? <Link className="text-link" to="/login">Log in</Link></p></div></main></div>;
 }
